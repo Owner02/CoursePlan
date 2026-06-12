@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контроль выполнения работы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Форма входа */
+        .login-container {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .login-container button:hover {
+            background: #5a67d8;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Основной интерфейс */
+        .main-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 900px;
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .controls button:hover {
+            background: #218838;
+        }
+
+        .controls .reset-btn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .controls .reset-btn:hover {
+            background: #e0a800;
+        }
+
+        .checklist {
+            margin-top: 20px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checklist-item .item-text {
+            flex: 1;
+            padding: 5px;
+            font-size: 16px;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: text;
+        }
+
+        .checklist-item .item-text:focus {
+            border-color: #667eea;
+            background: white;
+            outline: none;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .item-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            border-radius: 3px;
+        }
+
+        .edit-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .move-up, .move-down {
+            background: #6c757d;
+            color: white;
+        }
+
+        .add-item {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .add-item input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .add-item button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .completed-stats {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <h2>Авторизация</h2>
+        <input type="text" id="login" placeholder="Логин">
+        <input type="password" id="password" placeholder="Пароль">
+        <button onclick="login()">Войти</button>
+        <div class="error" id="errorMsg"></div>
+    </div>
+
+    <div class="main-container" id="mainContainer">
+        <div class="header">
+            <div class="user-info">Вы вошли как: <span id="currentUser"></span></div>
+            <button class="logout-btn" onclick="logout()">Выйти</button>
+        </div>
+        
+        <div class="controls">
+            <button onclick="resetToDefault()">Сбросить к исходному виду</button>
+        </div>
+
+        <div class="checklist" id="checklist"></div>
+        
+        <div class="add-item">
+            <input type="text" id="newItemText" placeholder="Название нового этапа">
+            <button onclick="addItem()">+ Добавить этап</button>
+        </div>
+        
+        <div class="completed-stats" id="stats"></div>
+    </div>
+
+    <script>
+        // Учётные записи
+        const users = [
+            { login: "user1", password: "pass123", name: "Студент Иванов" },
+            { login: "user2", password: "pass456", name: "Студент Петров" }
+        ];
+
+        // Ключи для localStorage
+        const getStorageKey = (username) => `checklist_${username}`;
+        const defaultItems = [
+            "титульный лист",
+            "содержание",
+            "введение",
+            "основную часть (2-3 главы с параграфами)",
+            "заключение",
+            "список источников и приложения"
+        ];
+
+        let currentUser = null;
+        let checklistItems = [];
+
+        // Функция входа
+        window.login = function() {
+            const login = document.getElementById('login').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            const user = users.find(u => u.login === login && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                document.getElementById('currentUser').textContent = user.name;
+                loadChecklist();
+                renderChecklist();
+            } else {
+                errorMsg.textContent = 'Неверный логин или пароль';
+            }
+        };
+
+        // Функция выхода
+        window.logout = function() {
+            currentUser = null;
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('login').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('errorMsg').textContent = '';
+        };
+
+        // Загрузка чеклиста из localStorage
+        function loadChecklist() {
+            const saved = localStorage.getItem(getStorageKey(currentUser.login));
+            if (saved) {
+                checklistItems = JSON.parse(saved);
+            } else {
+                // Инициализация с дефолтными значениями
+                checklistItems = defaultItems.map((text, index) => ({
+                    id: Date.now() + index,
+                    text: text,
+                    completed: false
+                }));
+                saveChecklist();
+            }
+        }
+
+        // Сохранение чеклиста
+        function saveChecklist() {
+            localStorage.setItem(getStorageKey(currentUser.login), JSON.stringify(checklistItems));
+        }
+
+        // Сброс к исходному виду
+        window.resetToDefault = function() {
+            if (confirm('Сбросить список этапов к исходному виду? Все изменения будут потеряны.')) {
+                checklistItems = defaultItems.map((text, index) => ({
+                    id: Date.now() + index,
+                    text: text,
+                    completed: false
+                }));
+                saveChecklist();
+                renderChecklist();
+            }
+        };
+
+        // Добавление нового этапа
+        window.addItem = function() {
+            const input = document.getElementById('newItemText');
+            const text = input.value.trim();
+            if (text) {
+                checklistItems.push({
+                    id: Date.now(),
+                    text: text,
+                    completed: false
+                });
+                saveChecklist();
+                renderChecklist();
+                input.value = '';
+            } else {
+                alert('Введите название этапа');
+            }
+        };
+
+        // Удаление этапа
+        window.deleteItem = function(id) {
+            if (confirm('Удалить этот этап?')) {
+                checklistItems = checklistItems.filter(item => item.id !== id);
+                saveChecklist();
+                renderChecklist();
+            }
+        };
+
+        // Изменение текста этапа
+        window.updateItemText = function(id, newText) {
+            const item = checklistItems.find(i => i.id === id);
+            if (item && newText.trim()) {
+                item.text = newText.trim();
+                saveChecklist();
+                renderChecklist();
+            }
+        };
+
+        // Переключение выполнения
+        window.toggleComplete = function(id) {
+            const item = checklistItems.find(i => i.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                saveChecklist();
+                renderChecklist();
+            }
+        };
+
+        // Перемещение вверх
+        window.moveUp = function(id) {
+            const index = checklistItems.findIndex(i => i.id === id);
+            if (index > 0) {
+                [checklistItems[index - 1], checklistItems[index]] = [checklistItems[index], checklistItems[index - 1]];
+                saveChecklist();
+                renderChecklist();
+            }
+        };
+
+        // Перемещение вниз
+        window.moveDown = function(id) {
+            const index = checklistItems.findIndex(i => i.id === id);
+            if (index < checklistItems.length - 1) {
+                [checklistItems[index + 1], checklistItems[index]] = [checklistItems[index], checklistItems[index + 1]];
+                saveChecklist();
+                renderChecklist();
+            }
+        };
+
+        // Подсчёт статистики
+        function updateStats() {
+            const total = checklistItems.length;
+            const completed = checklistItems.filter(item => item.completed).length;
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = `Выполнено этапов: ${completed} из ${total} (${total ? Math.round(completed/total*100) : 0}%)`;
+        }
+
+        // Рендер чеклиста
+        function renderChecklist() {
+            const container = document.getElementById('checklist');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            checklistItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'checklist-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = item.completed;
+                checkbox.onchange = () => toggleComplete(item.id);
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'item-text';
+                textSpan.contentEditable = true;
+                textSpan.textContent = item.text;
+                textSpan.onblur = (e) => updateItemText(item.id, e.target.textContent);
+                textSpan.onkeypress = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        textSpan.blur();
+                    }
+                };
+                
+                if (item.completed) {
+                    textSpan.style.textDecoration = 'line-through';
+                    textSpan.style.color = '#888';
+                } else {
+                    textSpan.style.textDecoration = 'none';
+                    textSpan.style.color = '#333';
+                }
+                
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'item-actions';
+                
+                const moveUpBtn = document.createElement('button');
+                moveUpBtn.textContent = '↑';
+                moveUpBtn.className = 'move-up';
+                moveUpBtn.onclick = () => moveUp(item.id);
+                moveUpBtn.title = 'Переместить вверх';
+                
+                const moveDownBtn = document.createElement('button');
+                moveDownBtn.textContent = '↓';
+                moveDownBtn.className = 'move-down';
+                moveDownBtn.onclick = () => moveDown(item.id);
+                moveDownBtn.title = 'Переместить вниз';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '×';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = () => deleteItem(item.id);
+                deleteBtn.title = 'Удалить';
+                
+                actionsDiv.appendChild(moveUpBtn);
+                actionsDiv.appendChild(moveDownBtn);
+                actionsDiv.appendChild(deleteBtn);
+                
+                div.appendChild(checkbox);
+                div.appendChild(textSpan);
+                div.appendChild(actionsDiv);
+                
+                container.appendChild(div);
+            });
+            
+            updateStats();
+        }
+
+        // Проверка авторизации при загрузке (для сохранения сессии)
+        // Можно добавить, но для простоты оставим как есть
+    </script>
+</body>
+</html>
